@@ -1,15 +1,8 @@
----
-title: "Reproducible Research: Peer Assessment 1"
-author: "Jeremy Voisey"
-date: "17 March 2017"
-output: 
-  html_document:
-    keep_md: true
----
+# Reproducible Research: Peer Assessment 1
+Jeremy Voisey  
+17 March 2017  
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+
 
 ## Introduction
 It is now possible to collect a large amount of data about personal movement
@@ -42,7 +35,8 @@ total of 17,568 observations in this dataset.
 
 The file was read into a data frame, activity
 
-```{r load}
+
+```r
 filename <- "activity/activity.csv"
 activity <- read.csv(filename, stringsAsFactors = FALSE)
 ```
@@ -50,7 +44,8 @@ activity <- read.csv(filename, stringsAsFactors = FALSE)
 
 ## What is mean total number of steps taken per day?
 
-```{r dailysteps}
+
+```r
 suppressMessages(library(dplyr))
 
 dailysteps <- activity %>%
@@ -60,59 +55,68 @@ dailysteps <- activity %>%
 
 ### The distribution of total daily steps
 
-```{r histogram}
+
+```r
 suppressMessages(library(ggplot2))
 ggplot(dailysteps, aes(x = dailysteps)) +
     geom_histogram(binwidth = 1000) +
     labs(x = "Daily Steps", title = "Distribution of Total Daily Steps")
-
 ```
+
+![](PA1_template_files/figure-html/histogram-1.png)<!-- -->
 
 ### The mean and median of total daily steps
 
-```{r meandailysteps}
+
+```r
 mean_dailysteps <- round(mean(dailysteps$dailysteps),0)
 median_dailysteps <- median(dailysteps$dailysteps)
 ```
 
-The mean number of daily steps was `r mean_dailysteps`,
-the median was `r median_dailysteps`
+The mean number of daily steps was 9354,
+the median was 10395
 
 ## What is the average daily activity pattern?
-```{r dailyactivity}
+
+```r
 dailyactivity <- activity %>%
     group_by(interval) %>%
     summarise(averagesteps = mean(steps, na.rm = TRUE))
 ```
 
 ### Average number of steps taken vs. 5-Minute interval
-```{r lineplot}
+
+```r
 library(ggplot2)
 ggplot(dailyactivity, aes(x = interval, y = averagesteps)) +
     geom_line() +
     labs(x = "5 Minute Interval", y = "average number of steps", title = "Average number of steps taken vs. 5-Minute interval")
-
 ```
 
+![](PA1_template_files/figure-html/lineplot-1.png)<!-- -->
+
 #### Maximum number of steps
-```{r max steps}
+
+```r
 maxinterval <- dailyactivity[which.max(dailyactivity$averagesteps), "interval"]
 ```
 
-The interval containing the maximum number of steps on average was `r maxinterval`
+The interval containing the maximum number of steps on average was 835
 
 ## Imputing missing values
-```{r missing}
+
+```r
 missingsteps <- sum(is.na(activity$steps))
 rowcount <- nrow(activity)
 ```
 
-There are `r missingsteps` rows, missing values out of `r rowcount`
+There are 2304 rows, missing values out of 17568
 
 Missing values were filled in by assuming that the number of steps in that
 interval was equal to the average for that interval across all days
 
-```{r impute}
+
+```r
 # Make copy of activity data.frame
 filled_activity <- activity
 # Identify rows with missing values
@@ -125,7 +129,8 @@ for (rown in whichna) {
 ```
 
 ### What is mean total number of steps taken per day for Imputed data set?
-```{r filled_dailysteps}
+
+```r
 filled_dailysteps <- filled_activity %>%
     group_by(date) %>%
     summarise(dailysteps = sum(steps, na.rm = TRUE))
@@ -133,46 +138,53 @@ filled_dailysteps <- filled_activity %>%
 
 ### The distribution of total daily steps using Imputed data set
 
-```{r filled_histogram}
+
+```r
 ggplot(filled_dailysteps, aes(x = dailysteps)) +
     geom_histogram(binwidth = 1000) +
     labs(x = "Daily Steps", title = "Distribution of Total Daily Steps (Imputed missing values)")
-
 ```
+
+![](PA1_template_files/figure-html/filled_histogram-1.png)<!-- -->
 
 ### The mean and median of total daily steps using Imputed data set
 
-```{r filled_meandailysteps}
+
+```r
 filled_mean_dailysteps <- round(mean(filled_dailysteps$dailysteps), 0)
 filled_median_dailysteps <- round(median(filled_dailysteps$dailysteps), 0)
 change_mean_dailysteps <- round(filled_mean_dailysteps - mean_dailysteps, 0)
 change_median_dailysteps <- round(filled_median_dailysteps - median_dailysteps, 0)
 ```
 
-The mean number of daily steps using imputed data was `r format(filled_mean_dailysteps, scientific = FALSE)`.
-This is a change of `r change_mean_dailysteps`.
+The mean number of daily steps using imputed data was 10766.
+This is a change of 1412.
 
-The median was `r format(filled_median_dailysteps, scientific = FALSE)`.
-This is a change of `r change_median_dailysteps`.
+The median was 10766.
+This is a change of 371.
 
 ## Are there differences in activity patterns between weekdays and weekends?
 A column was added indicating whether each day was a weekday or weekend
-```{r daytpe}
+
+```r
 filled_activity <- mutate(filled_activity, daytype = ifelse(as.POSIXlt(date)$wday == 0 | as.POSIXlt(date)$wday == 6, "Weekend", "Weekday"))
 ```
 
 The daily activity was calculated grouped by interval and Weekend/Weekday
-```{r daytype_dailyactivity}
+
+```r
 daytype_dailyactivity <- filled_activity %>%
     group_by(interval, daytype) %>%
     summarise(averagesteps = mean(steps, na.rm = TRUE))
 ```
 
 ### Average number of steps taken vs. 5-minute interval by day type
-```{r daytype_lineplot}
+
+```r
 ggplot(daytype_dailyactivity, aes(x = interval, y = averagesteps)) +
     geom_line() +
     facet_grid(daytype ~ .) +
     labs(x = "5 Minute Interval", y = "average number of steps", title = "Average number of steps taken vs. 5-Minute interval")
-
 ```
+
+![](PA1_template_files/figure-html/daytype_lineplot-1.png)<!-- -->
