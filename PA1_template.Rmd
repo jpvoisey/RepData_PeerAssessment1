@@ -1,10 +1,11 @@
 ---
-title: "Reproducible Research: Peer Assessment 1"
+title: 'Reproducible Research: Peer Assessment 1'
 author: "Jeremy Voisey"
-date: "17 March 2017"
-output: 
+date: "19 March 2017"
+output:
   html_document:
-    keep_md: true
+    keep_md: yes
+  pdf_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -72,7 +73,9 @@ ggplot(dailysteps, aes(x = dailysteps)) +
 
 ```{r meandailysteps}
 mean_dailysteps <- round(mean(dailysteps$dailysteps),0)
+mean_dailysteps
 median_dailysteps <- median(dailysteps$dailysteps)
+median_dailysteps
 ```
 
 The mean number of daily steps was `r mean_dailysteps`,
@@ -97,6 +100,7 @@ ggplot(dailyactivity, aes(x = interval, y = averagesteps)) +
 #### Maximum number of steps
 ```{r max steps}
 maxinterval <- dailyactivity[which.max(dailyactivity$averagesteps), "interval"]
+maxinterval
 ```
 
 The interval containing the maximum number of steps on average was `r maxinterval`
@@ -104,7 +108,9 @@ The interval containing the maximum number of steps on average was `r maxinterva
 ## Imputing missing values
 ```{r missing}
 missingsteps <- sum(is.na(activity$steps))
+missingsteps
 rowcount <- nrow(activity)
+rowcount
 ```
 
 There are `r missingsteps` rows, missing values out of `r rowcount`
@@ -133,10 +139,16 @@ filled_dailysteps <- filled_activity %>%
 
 ### The distribution of total daily steps using Imputed data set
 
+Imputing missing values has the noticable effect of decreasing the the number
+of days with a count of zero (missing values are effectively treated as 0) and
+Increasing the number of days with 11000 steps.
+
 ```{r filled_histogram}
-ggplot(filled_dailysteps, aes(x = dailysteps)) +
-    geom_histogram(binwidth = 1000) +
-    labs(x = "Daily Steps", title = "Distribution of Total Daily Steps (Imputed missing values)")
+combined_dailysteps <- rbind(mutate(filled_dailysteps, Data = "Imputed Missing Values"),
+                             mutate(dailysteps, Data = "Original Values"))
+ggplot(combined_dailysteps, aes(x = dailysteps, colour = Data)) +
+    geom_histogram(binwidth = 1000, position = "identity", alpha = 0.4, size = 1) +
+    labs(x = "Daily Steps", title = "Distribution of Total Daily Steps")
 
 ```
 
@@ -144,9 +156,13 @@ ggplot(filled_dailysteps, aes(x = dailysteps)) +
 
 ```{r filled_meandailysteps}
 filled_mean_dailysteps <- round(mean(filled_dailysteps$dailysteps), 0)
+filled_mean_dailysteps
 filled_median_dailysteps <- round(median(filled_dailysteps$dailysteps), 0)
+filled_median_dailysteps
 change_mean_dailysteps <- round(filled_mean_dailysteps - mean_dailysteps, 0)
+change_mean_dailysteps
 change_median_dailysteps <- round(filled_median_dailysteps - median_dailysteps, 0)
+change_median_dailysteps
 ```
 
 The mean number of daily steps using imputed data was `r format(filled_mean_dailysteps, scientific = FALSE)`.

@@ -1,6 +1,6 @@
 # Reproducible Research: Peer Assessment 1
 Jeremy Voisey  
-17 March 2017  
+19 March 2017  
 
 
 
@@ -70,7 +70,20 @@ ggplot(dailysteps, aes(x = dailysteps)) +
 
 ```r
 mean_dailysteps <- round(mean(dailysteps$dailysteps),0)
+mean_dailysteps
+```
+
+```
+## [1] 9354
+```
+
+```r
 median_dailysteps <- median(dailysteps$dailysteps)
+median_dailysteps
+```
+
+```
+## [1] 10395
 ```
 
 The mean number of daily steps was 9354,
@@ -99,6 +112,14 @@ ggplot(dailyactivity, aes(x = interval, y = averagesteps)) +
 
 ```r
 maxinterval <- dailyactivity[which.max(dailyactivity$averagesteps), "interval"]
+maxinterval
+```
+
+```
+## # A tibble: 1 × 1
+##   interval
+##      <int>
+## 1      835
 ```
 
 The interval containing the maximum number of steps on average was 835
@@ -107,7 +128,20 @@ The interval containing the maximum number of steps on average was 835
 
 ```r
 missingsteps <- sum(is.na(activity$steps))
+missingsteps
+```
+
+```
+## [1] 2304
+```
+
+```r
 rowcount <- nrow(activity)
+rowcount
+```
+
+```
+## [1] 17568
 ```
 
 There are 2304 rows, missing values out of 17568
@@ -138,11 +172,17 @@ filled_dailysteps <- filled_activity %>%
 
 ### The distribution of total daily steps using Imputed data set
 
+Imputing missing values has the noticable effect of decreasing the the number
+of days with a count of zero (missing values are effectively treated as 0) and
+Increasing the number of days with 11000 steps.
+
 
 ```r
-ggplot(filled_dailysteps, aes(x = dailysteps)) +
-    geom_histogram(binwidth = 1000) +
-    labs(x = "Daily Steps", title = "Distribution of Total Daily Steps (Imputed missing values)")
+combined_dailysteps <- rbind(mutate(filled_dailysteps, Data = "Imputed Missing Values"),
+                             mutate(dailysteps, Data = "Original Values"))
+ggplot(combined_dailysteps, aes(x = dailysteps, colour = Data)) +
+    geom_histogram(binwidth = 1000, position = "identity", alpha = 0.4, size = 1) +
+    labs(x = "Daily Steps", title = "Distribution of Total Daily Steps")
 ```
 
 ![](PA1_template_files/figure-html/filled_histogram-1.png)<!-- -->
@@ -152,9 +192,38 @@ ggplot(filled_dailysteps, aes(x = dailysteps)) +
 
 ```r
 filled_mean_dailysteps <- round(mean(filled_dailysteps$dailysteps), 0)
+filled_mean_dailysteps
+```
+
+```
+## [1] 10766
+```
+
+```r
 filled_median_dailysteps <- round(median(filled_dailysteps$dailysteps), 0)
+filled_median_dailysteps
+```
+
+```
+## [1] 10766
+```
+
+```r
 change_mean_dailysteps <- round(filled_mean_dailysteps - mean_dailysteps, 0)
+change_mean_dailysteps
+```
+
+```
+## [1] 1412
+```
+
+```r
 change_median_dailysteps <- round(filled_median_dailysteps - median_dailysteps, 0)
+change_median_dailysteps
+```
+
+```
+## [1] 371
 ```
 
 The mean number of daily steps using imputed data was 10766.
